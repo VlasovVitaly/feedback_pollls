@@ -53,7 +53,6 @@ def calc_rating(ratings):
     if ratings.total == 0:
         return rating
 
-
     all_ratings = zip(
         itemgetter('rate1', 'rate2', 'rate3', 'rate4', 'rate5')(rating),
         (1, 2, 3, 4, 5)
@@ -78,5 +77,7 @@ async def get_stats():
 
     day = await Poll.filter(voted_date=date.today()).only('id').annotate(**rating_annotations).first()
     ret['day'] = calc_rating(day)
+
+    ret['zip'] = zip
 
     return ret
