@@ -1,9 +1,9 @@
 from aiohttp import web
 from aiohttp_security import remember
 import aiohttp_jinja2
-from datetime import datetime
+from datetime import date
 
-from .models import Poll
+from .models import Poll, get_stats
 
 
 def check_auth_token(view):
@@ -34,7 +34,6 @@ async def login(request):
 
 @check_auth_token
 async def create_poll(request):
-    # TODO Check header
     poll = await Poll.create()
     await poll.update_urlcode()
 
@@ -58,9 +57,9 @@ async def vote_poll(request):
             raise web.HTTPBadRequest
 
         poll.vote = rate
-        poll.voted_timestamp = datetime.utcnow()
+        poll.voted_date = date.today()
 
-        await poll.save(update_fields=['vote', 'voted_timestamp'])
+        await poll.save(update_fields=['vote', 'voted_date'])
 
     return {}
 
@@ -68,3 +67,8 @@ async def vote_poll(request):
 @aiohttp_jinja2.template('vote-thanks.html')
 async def vote_thanks(request):
     return {}
+
+
+@aiohttp_jinja2.template('stats.html')
+async def stats(request):
+    return await get_stats()
