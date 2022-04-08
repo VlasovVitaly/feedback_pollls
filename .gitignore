@@ -1,0 +1,15 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Visual studio code config
+.vscode
+
+# Virtual environment
+.venv/
+
+# dev db
+db.sqlite3*
+
+# config
+config/config.yaml

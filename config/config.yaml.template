@@ -1,0 +1,7 @@
+host: 127.0.0.1
+port: 8080
+    
+db_url: sqlite://db.sqlite3
+
+devel: yes
+token: "dummy"
