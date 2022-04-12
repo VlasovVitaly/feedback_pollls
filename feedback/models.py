@@ -58,7 +58,8 @@ def calc_rating(ratings):
         (1, 2, 3, 4, 5)
     )
 
-    rating['rating'] = reduce(lambda prev, val: prev + (val[0] + val[1]), all_ratings, 0) / rating['total']
+    total_points = reduce(lambda prev, val: prev + (val[0] * val[1]), all_ratings, 0)
+    rating['rating'] = total_points / rating['total']
 
     return rating
 
