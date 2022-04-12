@@ -3,7 +3,7 @@ from aiohttp_security import remember
 import aiohttp_jinja2
 from datetime import date
 
-from .models import Poll, get_stats
+from .models import Poll, get_stats, ALL_STAT_PERIODS, DEFAULT_STAT_PERIOD
 
 
 def check_auth_token(view):
@@ -71,4 +71,13 @@ async def vote_thanks(request):
 
 @aiohttp_jinja2.template('stats.html')
 async def stats(request):
-    return await get_stats()
+    period = request.query.get('period')
+    
+    if not period or period not in ALL_STAT_PERIODS:
+        period  = DEFAULT_STAT_PERIOD
+
+    context = await get_stats(period)
+    context['current'] = period
+    context['period_name'] = ALL_STAT_PERIODS[period]
+
+    return context

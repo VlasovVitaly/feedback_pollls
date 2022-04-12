@@ -31,6 +31,17 @@ class Poll(Model):
 
         return f'[{self.id}] {self.url_code} -> {self.vote}'
 
+
+ALL_STAT_PERIODS = {
+    'day': 'сегодня',
+    'week': 'неделю',
+    'month': 'месяц',
+    'year': 'год'
+}
+
+DEFAULT_STAT_PERIOD = 'day'
+
+
 rating_annotations = {
     'total': Count('id'),
     'rate1': Count('id', _filter=Q(vote=1)),
@@ -64,21 +75,17 @@ def calc_rating(ratings):
     return rating
 
 
-async def get_stats():
-    ret = {}
+async def get_stats(period):
+    query_filters = {
+        'day': {'voted_date': date.today()},
+        'week': {'voted_date__gt': date.today() - timedelta(weeks=1)},
+        'month': {'voted_date__gt' :date.today() - timedelta(days=30)},
+        'year': {'voted_date__gt': date.today() - timedelta(days=365)}
+    }
 
-    year = await Poll.filter(voted_date__gt=date.today() - timedelta(days=365)).only('id').annotate(**rating_annotations).first()
-    ret['year'] = calc_rating(year)
+    data = await Poll.filter(**query_filters[period]).only('id').annotate(**rating_annotations).first()
+    data = calc_rating(data)
 
-    month = await Poll.filter(voted_date__gt=date.today() - timedelta(days=30)).only('id').annotate(**rating_annotations).first()
-    ret['month'] = calc_rating(month)
-    
-    week = await Poll.filter(voted_date__gt=date.today() - timedelta(weeks=1)).only('id').annotate(**rating_annotations).first()
-    ret['week'] = calc_rating(week)
+    data['zip'] = zip
 
-    day = await Poll.filter(voted_date=date.today()).only('id').annotate(**rating_annotations).first()
-    ret['day'] = calc_rating(day)
-
-    ret['zip'] = zip
-
-    return ret
+    return data

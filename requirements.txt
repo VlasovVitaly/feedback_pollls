@@ -1,7 +1,7 @@
 aiohttp
+aiohttp-jinja2
 aiohttp-security
 aiohttp-session[secure]
 aiosqlite
-aiohttp-jinja2
 PyYAML
 tortoise-orm[asyncpg,aiomysql]
