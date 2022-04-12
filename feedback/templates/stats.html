@@ -5,21 +5,20 @@
   <link href="/static/stats.css" rel="stylesheet">
 {% endblock styles  %}
 
+{% block title %}Статистика по оценкам{% endblock title %}
 {% block content %}
 <div class="container mt-5">
     <div class="row d-flex justify-content-center mt-5">
         <div class="btn-group">
-            <button type="button" class="btn btn-outline-primary active">За сегодня</button>
-            <button type="button" class="btn btn-outline-primary">За неделю</button>
-            <button type="button" class="btn btn-outline-primary">За месяц</button>
-            <button type="button" class="btn btn-outline-primary">За год</button>
+            <a href="/stats?period=day" class="btn btn-outline-primary{% if current == 'day' %} active{% endif %}">За сегодня</a>
+            <a href="/stats?period=week" class="btn btn-outline-primary{% if current == 'week' %} active{% endif %}">За неделю</a>
+            <a href="/stats?period=month" class="btn btn-outline-primary{% if current == 'month' %} active{% endif %}">За месяц</a>
+            <a href="/stats?period=year" class="btn btn-outline-primary{% if current == 'year' %} active{% endif %}">За год</a>
         </div>
     </div>
 
     <div class="row no-guter">
-        {% for name, period in zip(['сегодня', 'неделю', '30 дней', 'год'], [day, month, week, year]) %}
-            {% include "include/period_progress.html" %}
-        {% endfor %}
+        {% include "include/period_progress.html" %}
     </div>
 </div>
 {% endblock %}
