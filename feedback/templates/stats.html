@@ -7,41 +7,18 @@
 
 {% block content %}
 <div class="container mt-5">
-    <div class="row no-gutter">
+    <div class="row d-flex justify-content-center mt-5">
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-primary active">За сегодня</button>
+            <button type="button" class="btn btn-outline-primary">За неделю</button>
+            <button type="button" class="btn btn-outline-primary">За месяц</button>
+            <button type="button" class="btn btn-outline-primary">За год</button>
+        </div>
+    </div>
+
+    <div class="row no-guter">
         {% for name, period in zip(['сегодня', 'неделю', '30 дней', 'год'], [day, month, week, year]) %}
-        <div class="col-12"><h2 class="text-center m-5" >Статистика оценок за {{ name }} </h2></div>
-        <div class="col-4 border-end">
-            <div class="rating-score text-center">{{ period.rating }}</div>
-        </div>
-        <div class="col-8">
-            {% if period.total != 0 %}
-            <div class="d-flex align-items-center progres-row">
-                <div class="stars text-end">5</div>
-                <div class="progress flex-grow-1"><div class="progress-bar bg-success bg-opacity-75" style="width: {{ (period.rate5 / period.total) * 100}}%"></div></div>
-                <div class="percentage text-end">{{ "%.1f"|format((period.rate5 / period.total) * 100) }}%</div>
-            </div>
-            <div class="d-flex align-items-center progres-row">
-                <div class="stars text-end">4</div>
-                <div class="progress flex-grow-1"><div class="progress-bar bg-warning bg-opacity-75" style="width: {{ (period.rate4 / period.total) * 100}}%"></div></div>
-                <div class="percentage text-end">{{ "%.1f"|format((period.rate4 / period.total) * 100) }}%</div>
-            </div>
-            <div class="d-flex align-items-center progres-row">
-                <div class="stars text-end">3</div>
-                <div class="progress flex-grow-1"><div class="progress-bar bg-warning bg-opacity-75" style="width: {{ (period.rate3 / period.total) * 100}}%"></div></div>
-                <div class="percentage text-end">{{ "%.1f"|format((period.rate3 / period.total) * 100) }}%</div>
-            </div>
-            <div class="d-flex align-items-center progres-row">
-                <div class="stars text-end">2</div>
-                <div class="progress flex-grow-1"><div class="progress-bar bg-danger bg-opacity-75" style="width: {{ (period.rate2 / period.total) * 100}}%"></div></div>
-                <div class="percentage text-end">{{ "%.1f"|format((period.rate2 / period.total) * 100) }}%</div>
-            </div>
-            <div class="d-flex align-items-center progres-row">
-                <div class="stars text-end">1</div>
-                <div class="progress flex-grow-1"><div class="progress-bar bg-danger bg-opacity-75" style="width: {{ (period.rate1 / period.total) * 100}}%"></div></div>
-                <div class="percentage text-end">{{ "%.1f"|format((period.rate1 / period.total) * 100) }}%</div>
-            </div>
-            {% endif %}
-        </div>
+            {% include "include/period_progress.html" %}
         {% endfor %}
     </div>
 </div>

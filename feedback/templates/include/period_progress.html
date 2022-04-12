@@ -1,0 +1,39 @@
+{% if period.total %}
+        <div class="col-12"><h2 class="text-center mt-5" >Статистика оценок за {{ name }} </h2></div>
+        <div class="col-4 border-end">
+            <div class="rating-score text-center">{{ "%.1f"|format(period.rating) }}</div>
+        </div>
+        <div class="col-8">
+            <div class="d-flex align-items-center progres-row">
+                <div class="stars text-end">5</div>
+                <div class="progress flex-grow-1"><div class="progress-bar bg-success bg-opacity-75" style="width: {{ (period.rate5 / period.total) * 100}}%"></div></div>
+                <div class="percentage text-end">{{ "%.1f"|format((period.rate5 / period.total) * 100) }}%</div>
+            </div>
+            <div class="d-flex align-items-center progres-row">
+                <div class="stars text-end">4</div>
+                <div class="progress flex-grow-1"><div class="progress-bar bg-warning bg-opacity-75" style="width: {{ (period.rate4 / period.total) * 100}}%"></div></div>
+                <div class="percentage text-end">{{ "%.1f"|format((period.rate4 / period.total) * 100) }}%</div>
+            </div>
+            <div class="d-flex align-items-center progres-row">
+                <div class="stars text-end">3</div>
+                <div class="progress flex-grow-1"><div class="progress-bar bg-warning bg-opacity-75" style="width: {{ (period.rate3 / period.total) * 100}}%"></div></div>
+                <div class="percentage text-end">{{ "%.1f"|format((period.rate3 / period.total) * 100) }}%</div>
+            </div>
+            <div class="d-flex align-items-center progres-row">
+                <div class="stars text-end">2</div>
+                <div class="progress flex-grow-1"><div class="progress-bar bg-danger bg-opacity-75" style="width: {{ (period.rate2 / period.total) * 100}}%"></div></div>
+                <div class="percentage text-end">{{ "%.1f"|format((period.rate2 / period.total) * 100) }}%</div>
+            </div>
+            <div class="d-flex align-items-center progres-row">
+                <div class="stars text-end">1</div>
+                <div class="progress flex-grow-1"><div class="progress-bar bg-danger bg-opacity-75" style="width: {{ (period.rate1 / period.total) * 100}}%"></div></div>
+                <div class="percentage text-end">{{ "%.1f"|format((period.rate1 / period.total) * 100) }}%</div>
+            </div>
+        </div>
+{% else %}
+    <div class="col-12 mt-5">
+        <div class="card">
+            <div class="card-body"> <p class="fs-3 text-center">Нет оценок за данный период времени</p> </div>
+        </div>
+    </div>
+{% endif %}
