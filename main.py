@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 from pathlib import Path
 from aiohttp import web
 import aiohttp_jinja2
@@ -8,6 +7,7 @@ from tortoise.contrib.aiohttp import register_tortoise
 import yaml
 
 from feedback.routes import setup_routes
+from auth import setup_auth
 
 
 def load_config():
@@ -28,7 +28,7 @@ def setup_application():
 
     app['config'] = load_config()
 
-    aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(['templates', 'feedback/templates']))
+    aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader(['templates', 'feedback/templates', 'auth/templates']))
 
     setup_routes(app)
 
@@ -41,6 +41,8 @@ def setup_application():
     # Development static files
     if app['config']['devel']:
         app.router.add_static('/static/', Path('static'))
+
+    setup_auth(app)
 
     return app
 

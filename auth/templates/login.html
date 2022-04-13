@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mt-5"><div class="col"><h2 class="text-center">Войти в систему</h2></div></div>
+    <div class="row mt-5 justify-content-center">
+        <form method="POST" action="" class="col-sm-12 col-mb-10 col-lg-6">
+            <div class="mb-4 form-floating">
+                <input id="username_id" class="form-control" type="text" name="username" placeholder="пользователь" value="{% if fields %}{{ fields.username }}{% endif %}">
+                <label for="username_id">пользователь</label>
+            </div>
+            <div class="mb-4 form-floating">
+                <input id="password_id" class="form-control" type="password" name="password" placeholder="пароль" value="{% if fields %}{{ fields.password }}{% endif %}">
+                <label for="password_id">пароль</label>
+            </div>
+            {% if form_error %}<p class="mb-4 text-danger ps-1">нельзя зайти под этими учетным данными</p>{% endif %}
+            <div class="row justify-content-center">
+                <div class="col-10">
+                    <button type="submit" class="btn btn-primary w-100">Войти</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock content %}

@@ -1,9 +1,10 @@
 from aiohttp import web
-from aiohttp_security import remember
+from aiohttp_security import remember, authorized_userid
 import aiohttp_jinja2
 from datetime import date
 
 from .models import Poll, get_stats, ALL_STAT_PERIODS, DEFAULT_STAT_PERIOD
+from auth import check_user
 
 
 def check_auth_token(view):
@@ -18,18 +19,24 @@ def check_auth_token(view):
 
 @aiohttp_jinja2.template('login.html')
 async def login(request):
+
+    context = {}
     if request.method == 'POST':
-        response = web.HTTPFound('/')
         data = await request.post()
-        user = data.get('user')
+        user = data.get('username')
         password = data.get('password')
 
-        print(user, type(user))
+        if await check_user(username=user, password=password):
+            response = web.HTTPFound('/stats')
+            await remember(request, response, user)
+            return response
 
-        await remember(request, response, user)
+        context['fields'] = {}
+        context['fields']['username'] = user
+        context['fields']['password'] = password
+        context['form_error'] = 'невозможно зайти под этими учетным данными'
 
-        print(user, password)
-    return {}
+    return context
 
 
 @check_auth_token
