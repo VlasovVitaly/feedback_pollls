@@ -1,5 +1,6 @@
+import re
 from aiohttp import web
-from aiohttp_security import remember, authorized_userid
+from aiohttp_security import remember, forget, authorized_userid
 import aiohttp_jinja2
 from datetime import date
 
@@ -19,15 +20,16 @@ def check_auth_token(view):
 
 @aiohttp_jinja2.template('login.html')
 async def login(request):
-
     context = {}
+
     if request.method == 'POST':
-        data = await request.post()
-        user = data.get('username')
-        password = data.get('password')
+        form_data = await request.post()
+        user = form_data.get('username')
+        password = form_data.get('password')
 
         if await check_user(username=user, password=password):
             response = web.HTTPFound('/stats')
+            await forget(request, response)
             await remember(request, response, user)
             return response
 

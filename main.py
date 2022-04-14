@@ -34,7 +34,7 @@ def setup_application():
 
     register_tortoise(
         app, db_url=app['config']['db_url'],
-        modules={'models': ['feedback.models']},
+        modules={'models': ['feedback.models', 'auth.models']},
         generate_schemas=True
     )
 
