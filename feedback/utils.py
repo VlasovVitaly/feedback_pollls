@@ -1,6 +1,5 @@
-import string
 import random
-
+import string
 
 CHARS = string.ascii_lowercase + string.digits
 

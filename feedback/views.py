@@ -1,9 +1,12 @@
-from aiohttp import web
-from aiohttp_security import remember
-import aiohttp_jinja2
 from datetime import date
 
-from .models import Poll, get_stats, ALL_STAT_PERIODS, DEFAULT_STAT_PERIOD
+import aiohttp_jinja2
+from aiohttp import web
+from aiohttp_security import forget, remember
+
+from auth import check_user, login_required
+from feedback.models import (ALL_STAT_PERIODS, DEFAULT_STAT_PERIOD, Poll,
+                             get_stats)
 
 
 def check_auth_token(view):
@@ -18,28 +21,36 @@ def check_auth_token(view):
 
 @aiohttp_jinja2.template('login.html')
 async def login(request):
+    context = {}
+
     if request.method == 'POST':
-        response = web.HTTPFound('/')
-        data = await request.post()
-        user = data.get('user')
-        password = data.get('password')
+        form_data = await request.post()
+        user = form_data.get('username')
+        password = form_data.get('password')
 
-        print(user, type(user))
+        if await check_user(username=user, password=password):
+            response = web.HTTPFound('/stats')
+            await forget(request, response)
+            await remember(request, response, user)
+            return response
 
-        await remember(request, response, user)
+        context['fields'] = {}
+        context['fields']['username'] = user
+        context['fields']['password'] = password
+        context['form_error'] = 'невозможно зайти под этими учетным данными'
 
-        print(user, password)
-    return {}
+    return context
 
 
 @check_auth_token
 async def create_poll(request):
+    forwarded_proto = request.headers.get('X-Forwarded-Proto')
     poll = await Poll.create()
     await poll.update_urlcode()
 
     vote_url = request.app.router['vote'].url_for(url_code=poll.url_code)
 
-    return web.Response(text=f'{request.scheme}://{request.host}{vote_url}')
+    return web.Response(text=f'{forwarded_proto or request.scheme}://{request.host}{vote_url}')
 
 
 @aiohttp_jinja2.template('vote.html')
@@ -69,12 +80,13 @@ async def vote_thanks(request):
     return {}
 
 
+@login_required
 @aiohttp_jinja2.template('stats.html')
 async def stats(request):
     period = request.query.get('period')
-    
+
     if not period or period not in ALL_STAT_PERIODS:
-        period  = DEFAULT_STAT_PERIOD
+        period = DEFAULT_STAT_PERIOD
 
     context = await get_stats(period)
     context['current'] = period
