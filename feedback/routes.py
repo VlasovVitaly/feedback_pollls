@@ -1,4 +1,4 @@
-from feedback.views import create_poll, vote_poll, vote_thanks, stats, login
+from feedback.views import create_poll, login, stats, vote_poll, vote_thanks
 
 
 def setup_routes(application):

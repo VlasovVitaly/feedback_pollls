@@ -1,12 +1,12 @@
-import re
-from aiohttp import web
-from aiohttp_security import remember, forget
-from aiohttp_session import get_session
-import aiohttp_jinja2
 from datetime import date
 
-from .models import Poll, get_stats, ALL_STAT_PERIODS, DEFAULT_STAT_PERIOD
+import aiohttp_jinja2
+from aiohttp import web
+from aiohttp_security import forget, remember
+
 from auth import check_user, login_required
+from feedback.models import (ALL_STAT_PERIODS, DEFAULT_STAT_PERIOD, Poll,
+                             get_stats)
 
 
 def check_auth_token(view):

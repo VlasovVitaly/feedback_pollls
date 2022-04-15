@@ -1,16 +1,16 @@
-from os import environ as env
 import json
 from datetime import datetime, timedelta
+from os import environ as env
 
-from aiohttp_security.abc import AbstractAuthorizationPolicy 
-from aiohttp_security.session_identity import SessionIdentityPolicy
-from aiohttp_security import authorized_userid
-from aiohttp_security import setup as setup_security
-from aiohttp_session import setup as setup_sessions
-from aiohttp_session import AbstractStorage, Session, get_session
 from aiohttp.web import HTTPFound
+from aiohttp_security import (AbstractAuthorizationPolicy,
+                              SessionIdentityPolicy, authorized_userid)
+from aiohttp_security import setup as setup_security
+from aiohttp_session import AbstractStorage, Session, get_session
+from aiohttp_session import setup as setup_sessions
 
 from feedback.utils import generate_random_string
+
 from .models import UserSession
 
 SESSION_AGE_DAYS = 90
@@ -91,7 +91,6 @@ def setup_auth(app):
 
 def login_required(handler, login_url='/login', update_session=True):
     async def wrapped(request, *args, **kwargs):
-        session = await get_session(request)
         user = await authorized_userid(request)
 
         if not user:
