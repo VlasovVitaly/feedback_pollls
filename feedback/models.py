@@ -86,6 +86,4 @@ async def get_stats(period):
     data = await Poll.filter(**query_filters[period]).only('id').annotate(**rating_annotations).first()
     data = calc_rating(data)
 
-    data['zip'] = zip
-
     return data
