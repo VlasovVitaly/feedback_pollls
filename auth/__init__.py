@@ -69,26 +69,6 @@ class ModelSessionStorage(AbstractStorage):
         else:
             await self._model.filter(session_key=key).update(**session_fields)
 
-    async def remove_session(self, session, response):
-        key = session.identity
-        response.del_cookie(self._cookie_name, domain=self.cookie_params['domain'], path=self.cookie_params['path'])
-
-        if key is None:
-            return
-
-        session = await self._model.filter(session_key=key).first()
-        if session:
-            await session.delete()
-
-
-async def check_user(username, password):
-    return (username == env.get('stats_user')) and (password == env.get('stats_pass'))
-
-
-def setup_auth(app):
-    setup_sessions(app, ModelSessionStorage(UserSession))
-    setup_security(app, SessionIdentityPolicy(), SingleUseriEnvAuthPolicy())
-
 
 def login_required(handler, login_url='/login'):
     async def wrapped(request, *args, **kwargs):
@@ -104,3 +84,12 @@ def login_required(handler, login_url='/login'):
         return await handler(request, *args, **kwargs)
 
     return wrapped
+
+
+async def check_user(username, password):
+    return (username == env.get('stats_user')) and (password == env.get('stats_pass'))
+
+
+def setup_auth(app):
+    setup_sessions(app, ModelSessionStorage(UserSession))
+    setup_security(app, SessionIdentityPolicy(), SingleUseriEnvAuthPolicy())
