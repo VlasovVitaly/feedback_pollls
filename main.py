@@ -10,6 +10,9 @@ from feedback.routes import setup_routes
 from auth import setup_auth
 
 
+__version__ = '0.2'
+
+
 def load_config():
     conf_path = Path(__file__).parent / "config" / "config.yaml"
 
