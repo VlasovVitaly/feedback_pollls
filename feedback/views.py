@@ -1,11 +1,12 @@
 import re
 from aiohttp import web
-from aiohttp_security import remember, forget, authorized_userid
+from aiohttp_security import remember, forget
+from aiohttp_session import get_session
 import aiohttp_jinja2
 from datetime import date
 
 from .models import Poll, get_stats, ALL_STAT_PERIODS, DEFAULT_STAT_PERIOD
-from auth import check_user
+from auth import check_user, login_required
 
 
 def check_auth_token(view):
@@ -43,12 +44,13 @@ async def login(request):
 
 @check_auth_token
 async def create_poll(request):
+    forwarded_proto = request.headers.get('X-Forwarded-Proto')
     poll = await Poll.create()
     await poll.update_urlcode()
 
     vote_url = request.app.router['vote'].url_for(url_code=poll.url_code)
 
-    return web.Response(text=f'{request.scheme}://{request.host}{vote_url}')
+    return web.Response(text=f'{forwarded_proto or request.scheme}://{request.host}{vote_url}')
 
 
 @aiohttp_jinja2.template('vote.html')
@@ -78,6 +80,7 @@ async def vote_thanks(request):
     return {}
 
 
+@login_required
 @aiohttp_jinja2.template('stats.html')
 async def stats(request):
     period = request.query.get('period')

@@ -4,18 +4,20 @@ from datetime import datetime, timedelta
 
 from aiohttp_security.abc import AbstractAuthorizationPolicy 
 from aiohttp_security.session_identity import SessionIdentityPolicy
+from aiohttp_security import authorized_userid
 from aiohttp_security import setup as setup_security
 from aiohttp_session import setup as setup_sessions
-from aiohttp_session import AbstractStorage, Session
+from aiohttp_session import AbstractStorage, Session, get_session
+from aiohttp.web import HTTPFound
 
 from feedback.utils import generate_random_string
 from .models import UserSession
 
+SESSION_AGE_DAYS = 90
 
 class SingleUseriEnvAuthPolicy(AbstractAuthorizationPolicy):
     async def authorized_userid(self, identity):
-        if identity == env.get('stats_user'):
-            return identity
+        return identity == env.get('stats_user')
         
     async def permits(self, identity, permission, context=None):
         return await self.authorized_userid(identity) and permission == 'stats'
@@ -37,7 +39,8 @@ class ModelSessionStorage(AbstractStorage):
         if not session:
             return await self.new_session()
 
-        return Session(cookie, data={}, new=False, max_age=self.max_age)
+        session_data = {'session': self._decoder(session.data)}
+        return Session(cookie, data=session_data, new=False, max_age=self.max_age)
     
     async def save_session(self, request, response, session):
         key = session.identity
@@ -55,7 +58,10 @@ class ModelSessionStorage(AbstractStorage):
         if not data:
             return
         
-        session_fields = {'data': self._encoder(data["session"]), 'expires': datetime.utcnow() + timedelta(days=90)}
+        session_fields = {
+            'data': self._encoder(data["session"]),
+            'expires': datetime.utcnow() + timedelta(days=SESSION_AGE_DAYS)
+        }
 
         if session.new:
             await self._model.create(session_key=key, **session_fields)
@@ -75,21 +81,26 @@ class ModelSessionStorage(AbstractStorage):
 
 
 async def check_user(username, password):
-    stat_user = env.get('stats_user')
-    stat_pass = env.get('stats_pass')
-
-    return (username == stat_user) and (password == stat_pass)
-
-
-async def log_in(self):
-    pass
-
-
-async def log_out(self):
-    pass
+    return (username == env.get('stats_user')) and (password == env.get('stats_pass'))
 
 
 def setup_auth(app):
-    # setup_sessions(app, SimpleCookieStorage())
     setup_sessions(app, ModelSessionStorage(UserSession))
-    setup_security(app, SessionIdentityPolicy(), SingleUseriEnvAuthPolicy())
+    setup_security(app, SessionIdentityPolicy(), SingleUseriEnvAuthPolicy()) 
+
+
+def login_required(handler, login_url='/login', update_session=True):
+    async def wrapped(request, *args, **kwargs):
+        session = await get_session(request)
+        user = await authorized_userid(request)
+
+        if not user:
+            raise HTTPFound(login_url)
+        
+        session = await get_session(request)
+        if not session.new:
+            session.changed()
+
+        return await handler(request, *args, **kwargs)
+
+    return wrapped 
