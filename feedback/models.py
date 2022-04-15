@@ -4,7 +4,6 @@ from operator import itemgetter
 
 from tortoise import fields
 from tortoise.exceptions import IntegrityError
-from tortoise.expressions import F
 from tortoise.functions import Count
 from tortoise.models import Model, Q
 
@@ -51,6 +50,7 @@ rating_annotations = {
     'rate5': Count('id', _filter=Q(vote=5)),
 }
 
+
 def calc_rating(ratings):
     rating = {
         'rating': 0, 'total': ratings.total,
@@ -79,7 +79,7 @@ async def get_stats(period):
     query_filters = {
         'day': {'voted_date': date.today()},
         'week': {'voted_date__gt': date.today() - timedelta(weeks=1)},
-        'month': {'voted_date__gt' :date.today() - timedelta(days=30)},
+        'month': {'voted_date__gt': date.today() - timedelta(days=30)},
         'year': {'voted_date__gt': date.today() - timedelta(days=365)}
     }
 

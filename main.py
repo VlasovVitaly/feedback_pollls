@@ -17,8 +17,9 @@ def load_config():
         with conf_path.open("r") as conf:
             config = yaml.safe_load(conf)
     except FileNotFoundError:
+        import sys
         print('Config file does not exist. Create it from config/config.yaml.template')
-        exit(1)
+        sys.exit(1)
 
     return config
 

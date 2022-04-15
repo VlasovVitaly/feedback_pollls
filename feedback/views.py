@@ -84,9 +84,9 @@ async def vote_thanks(request):
 @aiohttp_jinja2.template('stats.html')
 async def stats(request):
     period = request.query.get('period')
-    
+
     if not period or period not in ALL_STAT_PERIODS:
-        period  = DEFAULT_STAT_PERIOD
+        period = DEFAULT_STAT_PERIOD
 
     context = await get_stats(period)
     context['current'] = period
