@@ -3,7 +3,7 @@ from tortoise.models import Model
 
 
 class UserSession(Model):
-    session_key = fields.CharField(max_length=32, pk=True)
+    session_key = fields.UUIDField(pk=True)
     data = fields.TextField(null=False)
     expires = fields.DatetimeField(null=False)
 

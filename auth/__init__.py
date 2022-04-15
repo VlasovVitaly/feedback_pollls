@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, timedelta
 from os import environ as env
+import uuid
 
 from aiohttp.web import HTTPFound
 from aiohttp_security import (AbstractAuthorizationPolicy,
@@ -9,7 +10,6 @@ from aiohttp_security import setup as setup_security
 from aiohttp_session import AbstractStorage, Session, get_session
 from aiohttp_session import setup as setup_sessions
 
-from feedback.utils import generate_random_string
 
 from .models import UserSession
 
@@ -36,7 +36,12 @@ class ModelSessionStorage(AbstractStorage):
         if cookie is None:
             return await self.new_session()
 
-        session = await self._model.filter(session_key=cookie, expires__gt=datetime.utcnow()).first()
+        try:
+            key = uuid.UUID(cookie)
+        except ValueError:
+            return await self.new_session()
+
+        session = await self._model.filter(session_key=key, expires__gt=datetime.utcnow()).first()
         if not session:
             return await self.new_session()
 
@@ -47,13 +52,13 @@ class ModelSessionStorage(AbstractStorage):
         key = session.identity
 
         if key is None:
-            key = generate_random_string(32)
-            self.save_cookie(response, key, max_age=session.max_age)
+            key = uuid.uuid4()
+            self.save_cookie(response, key.hex, max_age=session.max_age)
         else:
             if session.empty:
                 self.save_cookie(response, "", max_age=session.max_age)
             else:
-                self.save_cookie(response, key, max_age=session.max_age)
+                self.save_cookie(response, str(key), max_age=session.max_age)
 
         data = self._get_session_data(session)
         if not data:
